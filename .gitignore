@@ -1,0 +1,15 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# project definitions
+.project
+.pydevproject
+.idea/
+
+# libscpecs
+libspecs/
+
+# pics
+*.ppm
