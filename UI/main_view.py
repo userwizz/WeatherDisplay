@@ -4,12 +4,15 @@
 from tkinter import Tk, Text, BOTH, W, N, E, S, Label, Frame, Button, PhotoImage, LEFT, CENTER
 import time
 #from tkinter.ttk import Frame, Button, Style
+from UI.weather_data import WeatherData
 
 
 class WeatherUI (Frame):
 
     def __init__(self):
         super().__init__()
+        self.secs_since_last_update = 0
+        self._my_data = WeatherData('')
         self.initUI()
 
 
@@ -63,8 +66,8 @@ class WeatherUI (Frame):
         self.img_label_current.image = img
         self.img_label_current.grid(row=0, column=0, sticky=W+N)
 
-        self.txt_label_current = Label(frame_current_weather, text='-13' + ' ' + self.deg_sign + 'C\n3 m/s\n88' +
-                                        self.deg_sign, justify=LEFT, **self.text_style_args)
+        self.txt_label_current = Label(frame_current_weather, text= self._get_current_weather_text(),
+                                                                   justify=LEFT, **self.text_style_args)
         self.txt_label_current.grid(row=0, column=1, sticky=W+N, **self.text_padding_args)
         frame_current_weather.grid(row=1, column=0, sticky=W+E+N+S)
 
@@ -139,12 +142,29 @@ class WeatherUI (Frame):
 
 
     def updateView(self):
+        self.secs_since_last_update +=1
+
         time_now = time.strftime("%H:%M:%S")
         date_now = time.strftime("%d.%m.%Y")
+
+        if self.secs_since_last_update > 10:
+            self.secs_since_last_update = 0
+            self._my_data = WeatherData(time_now)
+            self._my_data.start()
+
+        if not self._my_data.is_alive():
+            self.txt_label_current.configure(text=self._get_current_weather_text())
+
         self.txt_label_time.configure(text=time_now)
         self.txt_label_date.configure(text=date_now)
+
         self.after(1000, self.updateView)
 
+    def _get_current_weather_text(self):
+        text =  str(self._my_data.current_temp) + ' ' + self.deg_sign + 'C\n' + \
+                str(self._my_data.current_wind) + ' m/s\n' + \
+                str(self._my_data.current_wind_direction) + ' ' + self.deg_sign
+        return text
 
 
 def main():
