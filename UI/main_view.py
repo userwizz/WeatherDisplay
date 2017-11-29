@@ -11,7 +11,7 @@ class WeatherUI (Frame):
 
     def __init__(self):
         super().__init__()
-        self.secs_since_last_update = 0
+        self.secs_since_last_update = 10
         self._my_data = WeatherData('')
         self.initUI()
 
@@ -77,10 +77,8 @@ class WeatherUI (Frame):
         # forecast today, +3h +6 +9h
         frame_forecast_today = Frame(self, highlightcolor="grey", highlightthickness=1,background='black')
         frame_forecast_today.rowconfigure(0, weight=1)
-        self.txt_label_forecast_today = Label(frame_forecast_today, text='-10' + ' ' + self.deg_sign + 'C, 3 m/s, clear sky\n' +
-                                                               '-8' + ' ' + self.deg_sign + 'C, 3 m/s, light snow\n' +
-                                                               '-5' + ' ' + self.deg_sign + 'C, 1 m/s, light snow\n',
-                                                                **self.text_style_args)
+        self.txt_label_forecast_today = Label(frame_forecast_today, text=self._get_next_hours_text(),
+                                              justify=LEFT, **self.text_style_args)
         self.txt_label_forecast_today.grid(row=0, column=0, **self.text_padding_args)
         frame_forecast_today.grid(row=1, column=1, sticky=W+E+N+S)
 
@@ -104,8 +102,8 @@ class WeatherUI (Frame):
         self.img_label_tomorrow.image = img
         self.img_label_tomorrow.grid(row=0, column=0, sticky=W+N)
 
-        self.txt_label_tomorrow = Label(frame_forecast, text='-10' + ' ' + self.deg_sign + 'C\n3 m/s\n88' +
-                                        self.deg_sign, justify=LEFT, **self.text_style_args)
+        self.txt_label_tomorrow = Label(frame_forecast, text=self._get_tomorrow_text(),
+                                        justify=LEFT, **self.text_style_args)
         self.txt_label_tomorrow.grid(row=0, column=1, sticky=W+N, **self.text_padding_args)
 
         # tomorrow +1
@@ -114,8 +112,8 @@ class WeatherUI (Frame):
         self.img_label_tomorrow_plus1.image = img
         self.img_label_tomorrow_plus1.grid(row=0, column=2, sticky=W + N)
 
-        self.txt_label_tomorrow_plus1 = Label(frame_forecast, text='-10' + ' ' + self.deg_sign + 'C\n3 m/s\n88' +
-                                                              self.deg_sign, justify=LEFT, **self.text_style_args)
+        self.txt_label_tomorrow_plus1 = Label(frame_forecast, text=self._get_tomorrow_plus1_text(),
+                                          justify=LEFT, **self.text_style_args)
         self.txt_label_tomorrow_plus1.grid(row=0, column=3, sticky=W + N, **self.text_padding_args)
 
         # tomorrow +2
@@ -154,6 +152,9 @@ class WeatherUI (Frame):
 
         if not self._my_data.is_alive():
             self.txt_label_current.configure(text=self._get_current_weather_text())
+            self.txt_label_forecast_today.configure(text=self._get_next_hours_text())
+            self.txt_label_tomorrow.configure(text=self._get_tomorrow_text())
+            self.txt_label_tomorrow_plus1.configure(text=self._get_tomorrow_plus1_text())
 
         self.txt_label_time.configure(text=time_now)
         self.txt_label_date.configure(text=date_now)
@@ -161,10 +162,46 @@ class WeatherUI (Frame):
         self.after(1000, self.updateView)
 
     def _get_current_weather_text(self):
-        text =  str(self._my_data.current_temp) + ' ' + self.deg_sign + 'C\n' + \
-                str(self._my_data.current_wind) + ' m/s\n' + \
-                str(self._my_data.current_wind_direction) + ' ' + self.deg_sign
+        text =  str(self._my_data.weather_now_dict['temp']) + ' ' + self.deg_sign + 'C\n' + \
+                str(self._my_data.weather_now_dict['wind']) + ' m/s\n' + \
+                str(self._my_data.weather_now_dict['direction']) + ' ' + self.deg_sign
         return text
+
+    def _get_next_hours_text(self):
+        text_3h = \
+            str(self._my_data.plus_3h_time) + ': ' + \
+            str(self._my_data.plus_3h_temp) + ' ' + self.deg_sign + 'C, ' + \
+            str(self._my_data.plus_3h_wind) + ' m/s, ' + \
+            str(self._my_data.plus_3h_description)
+
+        text_6h = \
+            str(self._my_data.plus_6h_time) + ': ' + \
+            str(self._my_data.plus_6h_temp) + ' ' + self.deg_sign + 'C, ' + \
+            str(self._my_data.plus_6h_wind) + ' m/s, ' + \
+            str(self._my_data.plus_6h_description)
+
+        text_9h = \
+            str(self._my_data.plus_9h_time) + ': ' + \
+            str(self._my_data.plus_9h_temp) + ' ' + self.deg_sign + 'C, ' + \
+            str(self._my_data.plus_9h_wind) + ' m/s, ' + \
+            str(self._my_data.plus_9h_description)
+
+        return text_3h + '\n' + text_6h + '\n' + text_9h
+
+    def _get_tomorrow_text(self):
+        text =  str(self._my_data.plus_1d_temp_day) + ' / ' + \
+                str(self._my_data.plus_1d_temp_night) + ' ' + self.deg_sign + 'C\n' + \
+                str(self._my_data.plus_1d_wind) + ' m/s\n' + \
+                str(self._my_data.plus_1d_wind_direction) + ' ' + self.deg_sign
+        return text
+
+    def _get_tomorrow_plus1_text(self):
+        text =  str(self._my_data.plus_2d_temp_day) + ' / ' + \
+                str(self._my_data.plus_2d_temp_night) + ' ' + self.deg_sign + 'C\n' + \
+                str(self._my_data.plus_2d_wind) + ' m/s\n' + \
+                str(self._my_data.plus_2d_wind_direction) + ' ' + self.deg_sign
+        return text
+
 
 
 def main():
