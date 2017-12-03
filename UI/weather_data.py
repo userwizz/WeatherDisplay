@@ -8,120 +8,100 @@ class WeatherData (threading.Thread):
     def __init__(self, time_stamp):
         threading.Thread.__init__(self)
         self.threadID = time_stamp
-        self.init_values()
-        self.current_weather = []
-        self.weather_now_dict = {'temp' : 0,
-                                  'wind' : 0,
-                                  'direction' : 0,
-                                  'description' : "",
-                                  'temp_day' : 0,
-                                  'temp_night' : 0}
+
+        self._current = None
+        self._plus_3_hours = None
+        self._plus_6_hours = None
+        self._plus_9_hours = None
+        self._plus_12_hours = None
+        self._plus_1_days = None
+        self._plus_2_days = None
+        self._plus_3_days = None
+        self._plus_4_days = None
 
     def run(self):
         print ("Starting " + self.threadID)
-        helper = DataHelper('xxx', 'xxx')
+        helper = DataHelper('xxxx', 'xxxx')
 
-        self.parse_current(helper.get_current_weather())
-        self.parse_next_hours(helper.get_weather_forecast_for_coming_hours()['list'])
-        self.parse_next_days(helper.get_weather_forecast_for_coming_days()['list'])
+        self._parse_current(helper.get_current_weather())
+        self._parse_next_hours(helper.get_weather_forecast_for_coming_hours()['list'])
+        self._parse_next_days(helper.get_weather_forecast_for_coming_days()['list'])
 
         print ("Exiting " + self.threadID)
 
+    def get_current_weather(self):
+        return self._current
 
-    def parse_current(self,data):
-        print (data)
-        """
-        self.current_temp = data['main']['temp']
-        self.current_wind = data['wind']['speed']
-        self.current_wind_direction = round(data['wind']['deg'], 1)
-        self.current_description = data['weather'][0]['description']
-        """
-        self.weather_now_dict['temp'] = data['main']['temp']
-        self.weather_now_dict['wind'] = data['wind']['speed']
-        self.weather_now_dict['direction'] = round(data['wind']['deg'], 1)
-        self.weather_now_dict['description'] = data['weather'][0]['description']
+    def get_forecast_next_3_hours(self):
+        return self._plus_3_hours
 
-    def parse_next_hours(self,data):
-        self.plus_3h_time = time.strftime('%H:%M', time.localtime(data[0]['dt']))
-        self.plus_3h_temp = data[0]['main']['temp']
-        self.plus_3h_wind = data[0]['wind']['speed']
-        self.plus_3h_wind_direction = round(data[0]['wind']['deg'], 1)
-        self.plus_3h_description = data[0]['weather'][0]['description']
+    def get_forecast_next_6_hours(self):
+        return self._plus_6_hours
 
-        self.plus_6h_time = time.strftime('%H:%M', time.localtime(data[1]['dt']))
-        self.plus_6h_temp = data[1]['main']['temp']
-        self.plus_6h_wind = data[1]['wind']['speed']
-        self.plus_6h_wind_direction = round(data[1]['wind']['deg'], 1)
-        self.plus_6h_description = data[1]['weather'][0]['description']
+    def get_forecast_next_9_hours(self):
+        return self._plus_9_hours
 
-        self.plus_9h_time = time.strftime('%H:%M', time.localtime(data[2]['dt']))
-        self.plus_9h_temp = data[2]['main']['temp']
-        self.plus_9h_wind = data[2]['wind']['speed']
-        self.plus_9h_wind_direction = round(data[2]['wind']['deg'], 1)
-        self.plus_9h_description = data[2]['weather'][0]['description']
+    def get_forecast_next_12_hours(self):
+        return self._plus_12_hours
 
-    def parse_next_days(self,data):
-        self.plus_1d_time = time.strftime('%H:%M', time.localtime(data[0]['dt']))
-        self.plus_1d_temp_day = data[0]['temp']['day']
-        self.plus_1d_temp_night = data[0]['temp']['night']
-        self.plus_1d_wind = data[0]['speed']
-        self.plus_1d_wind_direction = round(data[0]['deg'], 1)
-        self.plus_1d_description = data[0]['weather'][0]['description']
+    def get_forecast_plus_1d(self):
+        return self._plus_1_days
 
-        self.plus_2d_time = time.strftime('%H:%M', time.localtime(data[1]['dt']))
-        self.plus_2d_temp_day = data[1]['temp']['day']
-        self.plus_2d_temp_night = data[1]['temp']['night']
-        self.plus_2d_wind = data[1]['speed']
-        self.plus_2d_wind_direction = round(data[1]['deg'], 1)
-        self.plus_2d_description = data[1]['weather'][0]['description']
+    def get_forecast_plus_2d(self):
+        return self._plus_2_days
 
+    def get_forecast_plus_3d(self):
+        return self._plus_3_days
 
+    def get_forecast_plus_4d(self):
+        return self._plus_4_days
 
+    def _parse_current(self,data):
+        self._current = self._parse_data(data)
 
-    def init_values(self):
+    def _parse_next_hours(self,data):
+        self._plus_3_hours = self._parse_data(data[0])
+        self._plus_6_hours = self._parse_data(data[1])
+        self._plus_9_hours = self._parse_data(data[2])
+        self._plus_12_hours = self._parse_data(data[3])
 
-        # current weather
-        self.current_temp = 0
-        self.current_wind = 0
-        self.current_wind_direction = 0
-        self.current_description = ""
-        self.current_icon = ""
+    def _parse_next_days(self,data):
+        print (str(data))
+        self._plus_1_days = self._parse_data(data[1], True)
+        self._plus_2_days = self._parse_data(data[2], True)
+        self._plus_3_days = self._parse_data(data[3], True)
+        self._plus_4_days = self._parse_data(data[4], True)
 
-        # forecast for coming hours
-        self.plus_3h_time = ""
-        self.plus_3h_temp = 0
-        self.plus_3h_wind = 0
-        self.plus_3h_wind_direction = 0
-        self.plus_3h_description = ""
+    def _parse_data (self, data, long_term=False):
 
-        self.plus_6h_time = ""
-        self.plus_6h_temp = 0
-        self.plus_6h_wind = 0
-        self.plus_6h_wind_direction = 0
-        self.plus_6h_description = ""
+        time_stamp = time.strftime('%H:%M', time.localtime(data['dt']))
+        if not long_term:
+            temp = data['main']['temp']
+            wind = data['wind']['speed']
+            deg = data['wind']['deg']
+            description = data['weather'][0]['description']
+            obj = WeatherDetails(time_stamp, wind, deg, description, temp=temp)
 
-        self.plus_9h_time = ""
-        self.plus_9h_temp = 0
-        self.plus_9h_wind = 0
-        self.plus_9h_wind_direction = 0
-        self.plus_9h_description = ""
+        else:
+            wind = data['speed']
+            deg = data['deg']
+            description = data['weather'][0]['description']
+            temp_day = data['temp']['day']
+            temp_night = data['temp']['night']
+            obj = WeatherDetails(time_stamp, wind, deg, description, temp_day=temp_day, temp_night=temp_night)
 
-        # forecast for coming days
-        self.plus_1d_time = ""
-        self.plus_1d_temp_day = 0
-        self.plus_1d_temp_night = 0
-        self.plus_1d_wind = 0
-        self.plus_1d_wind_direction = 0
-        self.plus_1d_description = ""
-
-        self.plus_2d_time = ""
-        self.plus_2d_temp_day = 0
-        self.plus_2d_temp_night = 0
-        self.plus_2d_wind = 0
-        self.plus_2d_wind_direction = 0
-        self.plus_2d_description = ""
+        return obj
 
 
 
+class WeatherDetails (object):
 
+    def __init__(self, time, wind ,deg, description, temp=None, temp_day=None, temp_night=None):
+        self.time = time
+        self.wind = int(wind)
+        self.deg = deg
+        self.description = description
+        if temp is not None: self.temp = int(temp)
+        if temp_day is not None: self.temp_day = int(temp_day)
+        if temp_night is not None: self.temp_night = int(temp_night)
 

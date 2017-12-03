@@ -29,6 +29,6 @@ class DataHelper():
         return requests.get(url).text
 
     def _get_forecast_next_days(self):
-        url = self.URL_BASE + '/forecast/daily?id=' + self.city_id + '&appid=' + self.key + '&units=' + self.UNITS + '&cnt=4'
+        url = self.URL_BASE + '/forecast/daily?id=' + self.city_id + '&appid=' + self.key + '&units=' + self.UNITS + '&cnt=5'
         return requests.get(url).text
 
