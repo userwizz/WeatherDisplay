@@ -1,16 +1,18 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-from tkinter import Tk, Text, BOTH, W, N, E, S, Label, Frame, Button, PhotoImage, LEFT, CENTER
+from tkinter import Tk, BOTH, W, N, E, S, Label, Frame, PhotoImage, LEFT
 import time
-# from tkinter.ttk import Frame, Button, Style
 from UI.weather_data import WeatherData
+from UI.icon_helper import IconHelper
+
 
 
 class WeatherUI(Frame):
     def __init__(self):
         super().__init__()
         self.secs_since_last_update = 11
+        self.icon_helper = IconHelper()
         self.initUI()
 
     def initUI(self):
@@ -54,7 +56,7 @@ class WeatherUI(Frame):
     def _add_current_weather_frame(self):
 
         frame_current_weather = Frame(self, highlightcolor="grey", highlightthickness=1, background='black')
-        img = PhotoImage(file='../resource/2.ppm')
+        img = PhotoImage(file='../resource/92.png')
         self.img_label_current = Label(frame_current_weather, image=img, **self.photo_style_args)
         self.img_label_current.image = img
         self.img_label_current.grid(row=0, column=0, sticky=W + N)
@@ -87,7 +89,7 @@ class WeatherUI(Frame):
         frame_forecast = Frame(self, highlightcolor="grey", highlightthickness=1, background='black')
 
         # forecast + 1 day
-        img = PhotoImage(file='../resource/1.ppm')
+        img = PhotoImage(file='../resource/92.png')
         self.img_label_plus_1d = Label(frame_forecast, image=img, **self.photo_style_args)
         self.img_label_plus_1d.image = img
         self.img_label_plus_1d.grid(row=0, column=0, sticky=W + N)
@@ -96,7 +98,7 @@ class WeatherUI(Frame):
         self.txt_label_plus_1d.grid(row=0, column=1, sticky=W + N, **self.text_padding_args)
 
         # forecast + 2 days
-        img = PhotoImage(file='../resource/2.ppm')
+        img = PhotoImage(file='../resource/92.png')
         self.img_label_plus_2d = Label(frame_forecast, image=img, **self.photo_style_args)
         self.img_label_plus_2d.image = img
         self.img_label_plus_2d.grid(row=0, column=2, sticky=W + N)
@@ -105,7 +107,7 @@ class WeatherUI(Frame):
         self.txt_label_plus_2d.grid(row=0, column=3, sticky=W + N, **self.text_padding_args)
 
         # forecast + 3 days
-        img = PhotoImage(file='../resource/1.ppm')
+        img = PhotoImage(file='../resource/92.png')
         self.img_label_plus_3d = Label(frame_forecast, image=img, **self.photo_style_args)
         self.img_label_plus_3d.image = img
         self.img_label_plus_3d.grid(row=0, column=4, sticky=W + N)
@@ -114,7 +116,7 @@ class WeatherUI(Frame):
         self.txt_label_plus_3d.grid(row=0, column=5, sticky=W + N, **self.text_padding_args)
 
         # forecast + 4 days
-        img = PhotoImage(file='../resource/1.ppm')
+        img = PhotoImage(file='../resource/92.png')
         self.img_label_plus_4d = Label(frame_forecast, image=img, **self.photo_style_args)
         self.img_label_plus_4d.image = img
         self.img_label_plus_4d.grid(row=0, column=6, sticky=W + N)
@@ -126,7 +128,6 @@ class WeatherUI(Frame):
 
     def updateView(self):
         self.secs_since_last_update += 1
-
 
         time_now = time.strftime("%H:%M:%S")
         date_now = time.strftime("%d.%m.%Y")
@@ -143,6 +144,26 @@ class WeatherUI(Frame):
             self.txt_label_plus_2d.configure(text=self._get_next_days_text(self._my_data.get_forecast_plus_2d()))
             self.txt_label_plus_3d.configure(text=self._get_next_days_text(self._my_data.get_forecast_plus_3d()))
             self.txt_label_plus_4d.configure(text=self._get_next_days_text(self._my_data.get_forecast_plus_4d()))
+
+            img = PhotoImage(file=self.icon_helper.get_icon_path(self._my_data.get_current_weather().weather_id))
+            self.img_label_current.configure(image=img)
+            self.img_label_current.image = img
+
+            img = PhotoImage(file=self.icon_helper.get_icon_path(self._my_data.get_forecast_plus_1d().weather_id))
+            self.img_label_plus_1d.configure(image=img)
+            self.img_label_plus_1d.image = img
+
+            img = PhotoImage(file=self.icon_helper.get_icon_path(self._my_data.get_forecast_plus_2d().weather_id))
+            self.img_label_plus_2d.configure(image=img)
+            self.img_label_plus_2d.image = img
+
+            img = PhotoImage(file=self.icon_helper.get_icon_path(self._my_data.get_forecast_plus_3d().weather_id))
+            self.img_label_plus_3d.configure(image=img)
+            self.img_label_plus_3d.image = img
+
+            img = PhotoImage(file=self.icon_helper.get_icon_path(self._my_data.get_forecast_plus_4d().weather_id))
+            self.img_label_plus_4d.configure(image=img)
+            self.img_label_plus_4d.image = img
 
         self.txt_label_time.configure(text=time_now)
         self.txt_label_date.configure(text=date_now)
@@ -174,8 +195,8 @@ class WeatherUI(Frame):
         return ret_val
 
     def _get_next_days_text(self, data):
-        text = str(data.temp_day) + ' ' + self.deg_sign + 'C\n' + \
-               str(data.temp_night) + ' ' + self.deg_sign + 'C\n' + \
+        text = 'Day: ' + str(data.temp_day) + ' ' + self.deg_sign + 'C\n' + \
+               'Night: ' + str(data.temp_night) + ' ' + self.deg_sign + 'C\n' + \
                str(data.wind) + ' m/s\n' + \
                str(data.deg) + ' ' + self.deg_sign
         return text

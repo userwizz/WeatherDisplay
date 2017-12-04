@@ -75,20 +75,21 @@ class WeatherData (threading.Thread):
     def _parse_data (self, data, long_term=False):
 
         time_stamp = time.strftime('%H:%M', time.localtime(data['dt']))
+        weather_id = data['weather'][0]['id']
+        description = data['weather'][0]['description']
+
         if not long_term:
             temp = data['main']['temp']
             wind = data['wind']['speed']
             deg = data['wind']['deg']
-            description = data['weather'][0]['description']
-            obj = WeatherDetails(time_stamp, wind, deg, description, temp=temp)
+            obj = WeatherDetails(time_stamp, wind, deg, weather_id, description, temp=temp)
 
         else:
             wind = data['speed']
             deg = data['deg']
-            description = data['weather'][0]['description']
             temp_day = data['temp']['day']
             temp_night = data['temp']['night']
-            obj = WeatherDetails(time_stamp, wind, deg, description, temp_day=temp_day, temp_night=temp_night)
+            obj = WeatherDetails(time_stamp, wind, deg, weather_id, description, temp_day=temp_day, temp_night=temp_night)
 
         return obj
 
@@ -96,10 +97,11 @@ class WeatherData (threading.Thread):
 
 class WeatherDetails (object):
 
-    def __init__(self, time, wind ,deg, description, temp=None, temp_day=None, temp_night=None):
+    def __init__(self, time, wind ,deg, weather_id, description, temp=None, temp_day=None, temp_night=None):
         self.time = time
         self.wind = int(wind)
         self.deg = deg
+        self.weather_id = weather_id
         self.description = description
         if temp is not None: self.temp = int(temp)
         if temp_day is not None: self.temp_day = int(temp_day)
