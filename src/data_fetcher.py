@@ -2,7 +2,7 @@ import requests
 import json
 
 
-class DataHelper():
+class DataHelper(object):
 
     URL_BASE = 'http://api.openweathermap.org/data/2.5'
     UNITS = 'metric'

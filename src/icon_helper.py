@@ -68,7 +68,6 @@ class IconHelper (object):
 
     def get_icon_path(self, weather_id):
         if weather_id in self.values:
-            print (str(weather_id) + ' -> icon =  ' + self.values[weather_id])
             return '../resource/' + self.values[weather_id]
         else:
             print ('No icon found for: ' + str(weather_id))

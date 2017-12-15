@@ -1,6 +1,9 @@
 import threading
 import time
-from UI.data_fetcher import DataHelper
+
+from sensor_reader import SensorReader
+
+from src.data_fetcher import DataHelper
 
 
 class WeatherData (threading.Thread):
@@ -9,6 +12,10 @@ class WeatherData (threading.Thread):
         threading.Thread.__init__(self)
         self.threadID = time_stamp
 
+        self._sensor_helper = SensorReader()
+        self._inside = None
+
+        self._weather_helper = DataHelper('xxxxx', 'xxxxx')
         self._current = None
         self._plus_3_hours = None
         self._plus_6_hours = None
@@ -20,14 +27,17 @@ class WeatherData (threading.Thread):
         self._plus_4_days = None
 
     def run(self):
-        print ("Starting " + self.threadID)
-        helper = DataHelper('xxxx', 'xxxx')
-
-        self._parse_current(helper.get_current_weather())
-        self._parse_next_hours(helper.get_weather_forecast_for_coming_hours()['list'])
-        self._parse_next_days(helper.get_weather_forecast_for_coming_days()['list'])
-
+        print ("Starting to fetch data " + self.threadID)
+        self._parse_current(self._weather_helper.get_current_weather())
+        self._parse_next_hours(self._weather_helper.get_weather_forecast_for_coming_hours()['list'])
+        self._parse_next_days(self._weather_helper.get_weather_forecast_for_coming_days()['list'])
+        inside = self._sensor_helper.get_data()
+        self._inside = InsideDetails(inside['temperature'], inside['humidity'])
         print ("Exiting " + self.threadID)
+
+    def get_inside(self):
+        return self._inside
+
 
     def get_current_weather(self):
         return self._current
@@ -66,7 +76,6 @@ class WeatherData (threading.Thread):
         self._plus_12_hours = self._parse_data(data[3])
 
     def _parse_next_days(self,data):
-        print (str(data))
         self._plus_1_days = self._parse_data(data[1], True)
         self._plus_2_days = self._parse_data(data[2], True)
         self._plus_3_days = self._parse_data(data[3], True)
@@ -94,7 +103,6 @@ class WeatherData (threading.Thread):
         return obj
 
 
-
 class WeatherDetails (object):
 
     def __init__(self, time, wind ,deg, weather_id, description, temp=None, temp_day=None, temp_night=None):
@@ -106,4 +114,11 @@ class WeatherDetails (object):
         if temp is not None: self.temp = int(temp)
         if temp_day is not None: self.temp_day = int(temp_day)
         if temp_night is not None: self.temp_night = int(temp_night)
+
+
+class InsideDetails (object):
+
+    def __init__(self,temperature, humidity):
+        self.temperature = temperature
+        self.humidity = humidity
 
