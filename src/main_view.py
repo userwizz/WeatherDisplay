@@ -5,8 +5,7 @@ import time
 from tkinter import Tk, BOTH, W, N, E, S, Label, Frame, PhotoImage, LEFT
 
 from weather_data import WeatherData
-
-from src.icon_helper import IconHelper
+from icon_helper import IconHelper
 
 
 class WeatherUI(Frame):
@@ -52,7 +51,7 @@ class WeatherUI(Frame):
         frame_date_time.columnconfigure(0, weight=1)
         self.txt_label_time = Label(frame_date_time, text='', **self._text_style_args)
         self.txt_label_time.grid(row=0, column=0, **self._text_padding_args)
-        self.txt_label_date = Label(frame_date_time, text='14..2017', **self._text_style_args)
+        self.txt_label_date = Label(frame_date_time, text='', **self._text_style_args)
         self.txt_label_date.grid(row=0, column=1, sticky=E, **self._text_padding_args)
         frame_date_time.grid(row=0, column=0, columnspan=4, sticky=W + E + N + S)
 
@@ -144,7 +143,7 @@ class WeatherUI(Frame):
             print('WeatherUI :: updateView ->  repainting')
             self._is_time_to_repaint = False
             self.txt_label_inside.configure(text=self._get_inside_text())
-            self.txt_label_current.configure(text=self._get_current_weather_text())
+            self.txt_label_current.configure(text=self._get_current_weather_text(self._my_data.get_current_weather()))
             self.txt_label_forecast_today.configure(text=self._get_next_hours_text())
             self.txt_label_plus_1d.configure(text=self._get_next_days_text(self._my_data.get_forecast_plus_1d()))
             self.txt_label_plus_2d.configure(text=self._get_next_days_text(self._my_data.get_forecast_plus_2d()))
@@ -177,15 +176,16 @@ class WeatherUI(Frame):
         self.after(1000, self.updateView)
 
     def _get_inside_text(self):
-        text = str(self._my_data.get_inside().temperature) + ' ' + self._deg_sign + 'C\n' + \
-               str(self._my_data.get_inside().humidity) + ' %'
+        text ='# Inside # \n' +\
+               'Temp: ' + str(self._my_data.get_inside().temperature) + ' ' + self._deg_sign + 'C\n' + \
+               'Humidity: ' + str(self._my_data.get_inside().humidity) + ' %'
         return text
 
-
-    def _get_current_weather_text(self):
-        text = str(self._my_data.get_current_weather().temp) + ' ' + self._deg_sign + 'C\n' + \
-               str(self._my_data.get_current_weather().wind) + ' m/s\n' + \
-               str(self._my_data.get_current_weather().deg) + ' ' + self._deg_sign
+    def _get_current_weather_text(self, data):
+        text = '# Today @ ' + str(data.time) + ' #\n' + \
+               str(data.temp) + ' ' + self._deg_sign + 'C\n' + \
+               str(data.wind) + ' m/s, ' + str(data.deg) + self._deg_sign + '\n' + \
+               str(data.description)
         return text
 
     def _get_next_hours_text(self):
@@ -193,11 +193,11 @@ class WeatherUI(Frame):
                 self._my_data.get_forecast_next_6_hours(),
                 self._my_data.get_forecast_next_9_hours(),
                 self._my_data.get_forecast_next_12_hours()]
-        ret_val = ""
+        ret_val = "# Coming hours #\n"
 
         for i in range(len(data)):
             text = \
-                '@' + str(data[i].time) + ': ' + \
+                '@ ' + str(data[i].time) + ': ' + \
                 str(data[i].temp) + ' ' + self._deg_sign + 'C, ' + \
                 str(data[i].wind) + ' m/s, ' + \
                 str(data[i].description)
@@ -208,10 +208,11 @@ class WeatherUI(Frame):
         return ret_val
 
     def _get_next_days_text(self, data):
-        text = 'Day: ' + str(data.temp_day) + ' ' + self._deg_sign + 'C\n' + \
+        text = '# ' + str(data.time) + ' #\n' + \
+               'Day: ' + str(data.temp_day) + ' ' + self._deg_sign + 'C\n' + \
                'Night: ' + str(data.temp_night) + ' ' + self._deg_sign + 'C\n' + \
-               str(data.wind) + ' m/s\n' + \
-               str(data.deg) + ' ' + self._deg_sign
+               str(data.wind) + ' m/s, ' + str(data.deg) + self._deg_sign + '\n' + \
+               str(data.description)
         return text
 
 
@@ -219,8 +220,8 @@ def main():
     root = Tk()
     root.attributes('-fullscreen', True)
     app = WeatherUI()
-    root.minsize(width=800, height=480)
-    root.maxsize(width=800, height=480)
+    root.minsize(width=799, height=480)
+    root.maxsize(width=799, height=480)
 
     root.mainloop()
 

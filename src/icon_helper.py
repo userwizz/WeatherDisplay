@@ -36,9 +36,9 @@ class IconHelper (object):
             522: '33.png',
             531: '33.png',
             # snow
-            600: '41.png',
-            601: '42.png',
-            602: '41.png',
+            600: '51.png',
+            601: '52.png',
+            602: '53.png',
             611: '71.png',
             612: '72.png',
             615: '71.png',
